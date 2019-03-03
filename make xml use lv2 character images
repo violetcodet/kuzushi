@@ -1,0 +1,251 @@
+import matplotlib.pyplot as plt
+from skimage import data
+from skimage import io
+import cv2
+from PIL import Image
+from scipy.signal import argrelextrema
+import matplotlib
+import pylab as pl
+import pandas as pd
+import os
+import os.path
+from pandas import DataFrame
+import numpy
+import csv
+global x1,x2,x3,y1,y2,y3,w1,w2,w3,h1,h2,h3,fn,image_id,nm_image,nm_image1to1,unicode1,unicode2,unicode3
+image_id = pd.read_csv('C:/kuzushi/groundtruth_lv2suji.csv',encoding='gbk',sep = ',')["ID"].values
+nm_image = pd.read_csv('C:/kuzushi/groundtruth_lv2suji.csv',encoding='gbk',sep = ',')["e"].values
+nm_image1to1 = pd.read_csv('C:/kuzushi/groundtruth_lv2suji.csv',encoding='gbk',sep = ',')["e"].values
+unicode1 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["unicode1"].values
+unicode2 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["unicode2"].values
+unicode3 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["unicode3"].values
+lv2id = pd.read_csv('c:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["id"].values
+x = pd.read_csv('c:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["x"].values
+y = pd.read_csv('c:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["y"].values
+w = pd.read_csv('c:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["width"].values
+h = pd.read_csv('c:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["height"].values
+x1 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["x1"].values
+y1 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["y1"].values
+w1= pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["w1"].values
+h1= pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["h1"].values
+x2 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["x2"].values
+y2 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["y2"].values
+w2= pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["w2"].values
+h2= pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["h2"].values
+x3 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["x3"].values
+y3 = pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["y3"].values
+w3= pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["w3"].values
+h3= pd.read_csv('C:/dataset/20180919lv2.csv',encoding='gbk',sep = ',')["h3"].values
+fn = ['U+3042', 'U+3044', 'U+3046', 'U+3048', 'U+304A', 'U+304B', 'U+304D', 'U+304F', 'U+3051', 'U+3053', 'U+3055', 'U+3057', 'U+3059', 'U+305B', 'U+305D', 'U+305F', 'U+3061', 'U+3064', 'U+3066', 'U+3068', 'U+306A', 'U+306B', 'U+306C', 'U+306D', 'U+306E', 'U+306F', 'U+3072', 'U+3075', 'U+3078', 'U+307B', 'U+307E', 'U+307F', 'U+3080', 'U+3081', 'U+3082', 'U+3084', 'U+3086', 'U+3088', 'U+3089', 'U+308A', 'U+308B', 'U+308C', 'U+308D', 'U+308F', 'U+3092', 'U+3093']
+fn0=['a','i','u','e','o','ka','ki','ku','ke','ko','sa','shi','su','se','so','ta','chi','tsu','te','to','na','ni','nu','ne','no','ha','hi','fu','he','ho','ma','mi','mu','me','mo','ya','yu','yo','ra','ri','ru','re','ro','wa','wo','nn']
+from xml.dom.minidom import Document
+from xml.etree import ElementTree
+import pdb
+def writeInfoToXml(filename1,id,ii,iii):
+        path = os.path.join("c:\\","dataset","lv2syusei",filename1+"-"+id+".jpg")
+        pathh= os.path.join("c:\\","dataset","jiyuyolo2","Annotations-ab",filename1+"-"+id+".xml")
+        img = Image.open(path)
+        #image_width=img.size[0]
+        #image_height=img.size[1]
+        image_width=64
+        image_height=288
+        unknown="Unknown"
+        flickr="flickr"
+        annotation1="annotation"
+        depth3=3
+        zero=0
+        ichi=1
+        unspecified="Unspecified"
+        doc = Document()
+        annotation = doc.createElement('annotation')
+        annotation.setAttribute('verified',"no")
+        doc.appendChild(annotation)
+        image_nm=filename1
+        folder_ph="lv2syusei"
+        image_ph=os.path.join("c:\\","dataset","lv2syusei",filename1+"-"+id+".jpg")
+        folder = doc.createElement('folder')
+        folder1 = doc.createTextNode(folder_ph)
+        folder.appendChild(folder1)
+        annotation.appendChild(folder)
+        filename2 = doc.createElement('filename')
+        filename3 = doc.createTextNode(image_nm)
+        filename2.appendChild(filename3)
+        annotation.appendChild(filename2)
+        path = doc.createElement('path')
+        path1 = doc.createTextNode(image_ph)
+        path.appendChild(path1)
+        annotation.appendChild(path)
+        source = doc.createElement('source')
+        database = doc.createElement('database')
+        database1 = doc.createTextNode(unknown)
+        database.appendChild(database1)
+        source.appendChild(database)
+        image2 = doc.createElement('image')
+        image3 = doc.createTextNode(flickr)
+        image2.appendChild(image3)
+        source.appendChild(image2)
+        annotation2 = doc.createElement('annotation')
+        annotation3 = doc.createTextNode(annotation1)
+        annotation2.appendChild(annotation3)
+        source.appendChild(annotation2)
+        annotation.appendChild(source)
+        size = doc.createElement('size')
+        width = doc.createElement('width')
+        width1 = doc.createTextNode(str(image_width))
+        width.appendChild(width1)
+        size.appendChild(width)
+        height = doc.createElement('height')
+        height1 = doc.createTextNode(str(image_height))
+        height.appendChild(height1)
+        size.appendChild(height)
+        depth = doc.createElement('depth')
+        depth1 = doc.createTextNode(str(depth3))
+        depth.appendChild(depth1)
+        size.appendChild(depth)
+        annotation.appendChild(size)
+        segmented = doc.createElement('segmented')
+        segmented1 = doc.createTextNode(str(zero)) 
+        segmented.appendChild(segmented1)          
+        annotation.appendChild(segmented)
+        path = os.path.join("c:\\","dataset","lv2syusei",nm_image[ii]+"-"+id+".jpg")
+        img = Image.open(path)
+        image_width=img.size[0]
+        image_height=img.size[1]
+        object1 = doc.createElement('object')
+        unicode11=fn.index(unicode1[iii])
+        name = doc.createElement('name')
+        name1 = doc.createTextNode(str(fn0[unicode11]))
+        name.appendChild(name1) 
+        object1.appendChild(name)
+        pose = doc.createElement('pose')
+        pose1 = doc.createTextNode(unspecified)
+        pose.appendChild(pose1) 
+        object1.appendChild(pose)
+        truncated = doc.createElement('truncated')
+        truncated1 = doc.createTextNode(str(zero))
+        truncated.appendChild(truncated1) 
+        object1.appendChild(truncated)
+        Difficult = doc.createElement('Difficult')
+        Difficult1 = doc.createTextNode(str(zero))
+        Difficult.appendChild(Difficult1)
+        object1.appendChild(Difficult)
+        occluded = doc.createElement('occluded')
+        occluded1 = doc.createTextNode(str(zero))
+        occluded.appendChild(occluded1)
+        object1.appendChild(Difficult)
+        bndbox1 = doc.createElement('bndbox')
+        xmin = doc.createElement('xmin')
+        xmin1 = doc.createTextNode(str(int(((x1[ii]-x[ii])/w[ii])*64)))
+        xmin.appendChild(xmin1)
+        bndbox1.appendChild(xmin)
+        ymin = doc.createElement('ymin')
+        ymin1 = doc.createTextNode(str(int(((y1[ii]-y[ii])/h[ii])*288)))
+        ymin.appendChild(ymin1)
+        bndbox1.appendChild(ymin)
+        xmax = doc.createElement('xmax')
+        xmax1 = doc.createTextNode(str(int(((w1[ii]/w[ii])*64)+((x1[ii]-x[ii])/w[ii])*64)))
+        xmax.appendChild(xmax1)
+        bndbox1.appendChild(xmax)
+        ymax = doc.createElement('ymax')
+        ymax1 = doc.createTextNode(str(int(((h1[ii]/h[ii])*288)+((y1[ii]-y[ii])/h[ii])*288)))
+        ymax.appendChild(ymax1)
+        bndbox1.appendChild(ymax)
+        object1.appendChild(bndbox1)
+        annotation.appendChild(object1)
+        object2 = doc.createElement('object')
+        unicode22=fn.index(unicode2[iii])
+        name = doc.createElement('name')
+        name2 = doc.createTextNode(str(fn0[unicode22]))
+        name.appendChild(name2) 
+        object2.appendChild(name)
+        pose = doc.createElement('pose')
+        pose2 = doc.createTextNode(unspecified)
+        pose.appendChild(pose2) 
+        object2.appendChild(pose)
+        truncated = doc.createElement('truncated')
+        truncated2 = doc.createTextNode(str(zero))
+        truncated.appendChild(truncated2) 
+        object2.appendChild(truncated)
+        Difficult = doc.createElement('Difficult')
+        Difficult2 = doc.createTextNode(str(zero))
+        Difficult.appendChild(Difficult2)
+        occluded = doc.createElement('occluded')
+        occluded2 = doc.createTextNode(str(zero))
+        occluded.appendChild(occluded2)
+        object2.appendChild(Difficult)
+        bndbox2 = doc.createElement('bndbox')
+        xmin = doc.createElement('xmin')
+        xmin2 = doc.createTextNode(str(int(((x2[ii]-x[ii])/w[ii])*64)))
+        xmin.appendChild(xmin2)
+        bndbox2.appendChild(xmin)
+        ymin = doc.createElement('ymin')
+        ymin2 = doc.createTextNode(str(int(((y2[ii]-y[ii])/h[ii])*288)))
+        ymin.appendChild(ymin2)
+        bndbox2.appendChild(ymin)
+        xmax = doc.createElement('xmax')
+        xmax2 = doc.createTextNode(str(int(((w2[ii]/w[ii])*64)+((x2[ii]-x[ii])/w[ii])*64)))
+        xmax.appendChild(xmax2)
+        bndbox2.appendChild(xmax)
+        ymax = doc.createElement('ymax')
+        ymax2 = doc.createTextNode(str(int(((h2[ii]/h[ii])*288)+((y2[ii]-y[ii])/h[ii])*288)))
+        ymax.appendChild(ymax2)
+        bndbox2.appendChild(ymax)
+        object2.appendChild(bndbox2)
+        annotation.appendChild(object2)
+        object3 = doc.createElement('object')
+        unicode33=fn.index(unicode3[iii])
+        name = doc.createElement('name')
+        name3 = doc.createTextNode(str(fn0[unicode33]))
+        name.appendChild(name3) 
+        object3.appendChild(name)
+        pose = doc.createElement('pose')
+        pose3 = doc.createTextNode(unspecified)
+        pose.appendChild(pose3) 
+        object3.appendChild(pose)
+        truncated = doc.createElement('truncated')
+        truncated3 = doc.createTextNode(str(zero))
+        truncated.appendChild(truncated3) 
+        object3.appendChild(truncated)
+        Difficult = doc.createElement('Difficult')
+        Difficult3 = doc.createTextNode(str(zero))
+        Difficult.appendChild(Difficult3)
+        object3.appendChild(Difficult)
+        occluded = doc.createElement('occluded')
+        occluded3 = doc.createTextNode(str(zero))
+        occluded.appendChild(occluded3)
+        bndbox3 = doc.createElement('bndbox')
+        xmin = doc.createElement('xmin')
+        xmin3 = doc.createTextNode(str(int(((x3[ii]-x[ii])/w[ii])*64)))
+        xmin.appendChild(xmin3)
+        bndbox3.appendChild(xmin)
+        ymin = doc.createElement('ymin')
+        ymin3 = doc.createTextNode(str(int(((y3[ii]-y[ii])/h[ii])*288)))
+        ymin.appendChild(ymin3)
+        bndbox3.appendChild(ymin)
+        xmax = doc.createElement('xmax')
+        xmax3 = doc.createTextNode(str(int(((w3[ii]/w[ii])*64)+((x3[ii]-x[ii])/w[ii])*64)))
+        xmax.appendChild(xmax3)
+        bndbox3.appendChild(xmax)
+        ymax = doc.createElement('ymax')
+        ymax3 = doc.createTextNode(str(int(((h3[ii]/h[ii])*288)+((y3[ii]-y[ii])/h[ii])*288)))
+        ymax.appendChild(ymax3)
+        bndbox3.appendChild(ymax)
+        object3.appendChild(bndbox3)
+        annotation.appendChild(object3)
+        f = open(pathh,'w')
+        doc.writexml(f,encoding='utf-8')
+        f.close()
+        return None
+
+for iiii in range(len(nm_image1to1)):
+ for iii in range(len(lv2id)):
+  if image_id[iiii]==lv2id[iii]:
+   filename=nm_image1to1[iiii]
+   id=str(lv2id[iii])
+   su=iiii
+   suu=iii
+   writeInfoToXml(filename,id,su,suu)
+
+
+##indent = '\t',newl = '\n', addindent = '\t',
+

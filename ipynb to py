@@ -1,0 +1,7 @@
+pip install jupyter 
+jupyter nbconvert --to script filter_visualizer.ipynb
+
+ipython
+#get_ipython().run_line_magic('matplotlib', 'inline')
+get_ipython().run_line_magic('matplotlib', 'auto')
+
